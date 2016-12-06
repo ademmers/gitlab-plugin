@@ -1,11 +1,6 @@
 package com.dabsquared.gitlabjenkins.gitlab.api;
 
-import com.dabsquared.gitlabjenkins.gitlab.api.model.Branch;
-import com.dabsquared.gitlabjenkins.gitlab.api.model.BuildState;
-import com.dabsquared.gitlabjenkins.gitlab.api.model.Label;
-import com.dabsquared.gitlabjenkins.gitlab.api.model.MergeRequest;
-import com.dabsquared.gitlabjenkins.gitlab.api.model.Project;
-import com.dabsquared.gitlabjenkins.gitlab.api.model.User;
+import com.dabsquared.gitlabjenkins.gitlab.api.model.*;
 import com.dabsquared.gitlabjenkins.gitlab.hook.model.State;
 
 import javax.ws.rs.DELETE;
@@ -158,4 +153,16 @@ public interface GitLabApi {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/projects/{projectId}/labels")
     List<Label> getLabels(@PathParam("projectId") String projectId);
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/projects")
+    List<Project> getProjects();
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/projects/{projectId}/repository/files")
+    RepositoryFile getRepositoryFile(@PathParam("projectId") String projectId,
+                                     @QueryParam("file_path") String filePath,
+                                     @QueryParam("ref") String branchName);
 }
