@@ -96,7 +96,8 @@ Due to this the plugin just listens for GitLab Push Hooks for multibranch pipeli
 
 Example `Jenkinsfile` for multibranch pipeline jobs
 ```
-properties properties: [[$class: 'GitLabConnectionProperty', gitLabConnection: '<your-gitlab-connection-name>']]
+// Reference the GitLab connection name from your Jenkins Global configuration (http://JENKINS_URL/configure, GitLab section)
+properties([[$class: 'GitLabConnectionProperty', gitLabConnection: '<your-gitlab-connection-name']])
 
 node {
     stage "checkout"
@@ -177,7 +178,7 @@ GitLab 8.1 has implemented a commit status api, you need an extra post-build ste
         }
     }
     ```
-* Configure access to GitLab as described above in "Configure access to GitLab" (the account needs at least developer permissions to post commit statuses)
+* Configure access to GitLab as described above in ["Configure access to GitLab"](#configuring-access-to-gitlab) (the account needs at least developer permissions to post commit statuses)
 
 # Branch filtering
 
@@ -229,6 +230,9 @@ These include:
 * gitlabTargetNamespace
 * gitlabTargetRepoSshUrl
 * gitlabTargetRepoHttpUrl
+* gitlabBefore
+* gitlabAfter
+* gitlabTriggerPhrase
 
 # Contributing to the Plugin
 
