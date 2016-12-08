@@ -1,5 +1,6 @@
 package com.dabsquared.gitlabjenkins.orgfolder;
 
+import com.dabsquared.gitlabjenkins.scm.MergeRequestSCMHead;
 import hudson.Extension;
 import hudson.model.Descriptor;
 import hudson.views.ViewJobFilter;
@@ -12,10 +13,7 @@ public class MergeRequestJobFilter extends AbstractBranchJobFilter {
 
     @Override
     protected boolean shouldShow(SCMHead head) {
-        // TODO: actually implement MergeRequestSCMHead in gitlab-branch-source
-        // return head instanceof MergeRequestSCMHead;
-        // filter everything for now (opposite of branch filter, where merge jobs will be listed as well)
-        return false;
+        return head instanceof MergeRequestSCMHead;
     }
 
     @Extension

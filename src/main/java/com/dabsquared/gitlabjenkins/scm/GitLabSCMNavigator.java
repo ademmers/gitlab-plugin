@@ -35,15 +35,16 @@ public class GitLabSCMNavigator extends SCMNavigator {
     private final String checkoutCredentialsId;
     private String pattern = ".*";
     private boolean autoRegisterHooks = false;
-    private String gitLabServerUrl;
+    private final String gitlabServerUrl;
     private int sshPort = 22;
 
     private transient GitLabConnector gitLabConnector;
 
     @DataBoundConstructor
-    public GitLabSCMNavigator(String projectOwner, String credentialsId, String checkoutCredentialsId){
+    public GitLabSCMNavigator(String gitlabServerUrl, String projectOwner, String credentialsId, String checkoutCredentialsId){
+        this.gitlabServerUrl = Util.fixEmpty(gitlabServerUrl);
         this.projectOwner = projectOwner;
-        this.credentialsId = credentialsId;
+        this.credentialsId = Util.fixEmpty(credentialsId);
         this.checkoutCredentialsId = checkoutCredentialsId;
     }
 
@@ -88,18 +89,9 @@ public class GitLabSCMNavigator extends SCMNavigator {
         this.sshPort = sshPort;
     }
 
-    @DataBoundSetter
-    public void setGitLabServerUrl(String url) {
-        this.gitLabServerUrl = Util.fixEmpty(url);
-        if (this.gitLabServerUrl != null) {
-            // Remove a possible trailing slash
-            this.gitLabServerUrl = this.gitLabServerUrl.replaceAll("/$", "");
-        }
-    }
-
     @CheckForNull
     public String getGitLabServerUrl() {
-        return gitLabServerUrl;
+        return gitlabServerUrl;
     }
 
     public void setGitLabConnector(@NonNull GitLabConnector gitLabConnector) {
@@ -108,7 +100,7 @@ public class GitLabSCMNavigator extends SCMNavigator {
 
     private GitLabConnector getGitLabConnector() {
         if (gitLabConnector == null) {
-            gitLabConnector = new GitLabConnector(gitLabServerUrl);
+            gitLabConnector = new GitLabConnector(gitlabServerUrl);
         }
         return gitLabConnector;
     }
@@ -125,10 +117,11 @@ public class GitLabSCMNavigator extends SCMNavigator {
         GitLabApiToken credentials = getGitLabConnector().lookupCredentials(observer.getContext(), credentialsId, GitLabApiTokenImpl.class);
 
         if(credentials == null) {
-            listener.getLogger().format("Connecting to %s with no credentials, anonymous access%n", gitLabServerUrl == null ? "https://gitlab.com" : gitLabServerUrl);
+            listener.getLogger().format("Connecting to %s with no credentials, anonymous access%n", gitlabServerUrl == null ? "https://gitlab.com" : gitlabServerUrl);
             return;
         } else {
-            listener.getLogger().format("Connecting to %s using %s%n", gitLabServerUrl == null ? "https://gitlab.com" : gitLabServerUrl, CredentialsNameProvider.name(credentials));
+            listener.getLogger().format("DEBUG: GitlabSCMNavigator.visitSources");
+            listener.getLogger().format("Connecting to %s using %s%n", gitlabServerUrl == null ? "https://gitlab.com" : gitlabServerUrl, CredentialsNameProvider.name(credentials));
         }
 
         GitLabApi gitLab = getGitLabConnector().create(projectOwner, credentials);
@@ -160,7 +153,7 @@ public class GitLabSCMNavigator extends SCMNavigator {
         scmSource.setGitLabConnector(getGitLabConnector());
         scmSource.setCredentialsId(credentialsId);
         scmSource.setAutoRegisterHook(isAutoRegisterHooks());
-        scmSource.setGitlabServerUrl(gitLabServerUrl);
+        scmSource.setGitlabServerUrl(gitlabServerUrl);
         scmSource.setSshPort(sshPort);
         projectObserver.addSource(scmSource);
         projectObserver.complete();
@@ -189,7 +182,7 @@ public class GitLabSCMNavigator extends SCMNavigator {
 
         @Override
         public SCMNavigator newInstance(String name) {
-            return new GitLabSCMNavigator(name, "", GitLabSCMSource.DescriptorImpl.SAME);
+            return new GitLabSCMNavigator(null ,name, null, GitLabSCMSource.DescriptorImpl.SAME);
         }
 
         public FormValidation doCheckCredentialsId(@QueryParameter String value) {

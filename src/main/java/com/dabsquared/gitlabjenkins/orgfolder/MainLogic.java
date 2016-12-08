@@ -71,7 +71,7 @@ public class MainLogic {
                 // This does not exist in that fashion in gitlab.
                 // This next part is actually what maps to system hooks in gitlab
                 // this is not (yet) forseen in eighter gitlab-plugin or gitlab-branch-source
-                // this requires a review of the credentials on the acuired gitlab client instance, as
+                // this requires a review of the credentials on the aqcuired gitlab client instance, as
                 //   manipulation of system hooks requires an administrative account
                 // might be this code only will implement the hook internal (within Jenkins) registration
                 // and the actual placement of the system hook remains a onetime job for an actual administrative person

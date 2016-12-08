@@ -43,7 +43,7 @@ public class SCMHeadWithProjectOwnerAndProjectName extends SCMHead {
     }
 
     /**
-     * Returns the prettified branch name by adding "MR-[ID]" if the branch is coming from a PR.
+     * Returns the prettified branch name by adding "MR-[ID]" if the branch is coming from a MR.
      * Use {@link #getBranchName()} to get the real branch name.
      */
     @Override

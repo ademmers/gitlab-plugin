@@ -291,6 +291,7 @@ public class GitLabSCMSource extends SCMSource {
         if(scanCredentials == null) {
             taskListener.getLogger().format("Connecting to %s with no credentials, anonymous access%n", gitlabServerUrl == null ? "https://gitlab.com" : gitlabServerUrl);
         } else {
+            taskListener.getLogger().format("DEBUG: GitlabSCMSource.retrieve");
             taskListener.getLogger().format("Connecting to %s using %s%n", gitlabServerUrl == null ? "https://gitlab.com" : gitlabServerUrl, CredentialsNameProvider.name(scanCredentials));
         }
         retrieveBranches(scmHeadObserver, taskListener);
@@ -307,13 +308,13 @@ public class GitLabSCMSource extends SCMSource {
         List<? extends MergeRequest> merges = gitlab.getMergeRequests(p.getId().toString(), State.opened, 0, 1000);
         for( final MergeRequest merge: merges) {
             Project sourceProj = gitlab.getProject(merge.getSourceProjectId().toString());
-            taskListener.getLogger().println("Checking MR from " + sourceProj.getNamespace() + "/" + sourceProj.getName() + " and branch "
+            taskListener.getLogger().println("Checking MR from " + sourceProj.getNamespace().getPath() + "/" + sourceProj.getName() + " and branch "
                 + merge.getSourceBranch());
 
             Branch b = gitlab.getBranch(merge.getSourceProjectId().toString(), merge.getSourceBranch());
             String commitHash = b.getCommit().getId();
             observe(scmHeadObserver, taskListener,
-                sourceProj.getNamespace().toString(),
+                sourceProj.getNamespace().getPath().toString(),
                 sourceProj.getName(),
                 merge.getSourceBranch(),
                 commitHash, merge.getId());
@@ -334,12 +335,12 @@ public class GitLabSCMSource extends SCMSource {
 
         for(Branch branch : branches) {
             taskListener.getLogger().println("Checking branch " + branch.getName() + " from " + fullName);
-            observe(scmHeadObserver, taskListener, projectOwner, projectName, branch.getName(), branch.getCommit().getId(), 0);
+            observe(scmHeadObserver, taskListener, projectOwner, projectName, branch.getName(), branch.getCommit().getId(), null);
         }
     }
 
     private void observe(SCMHeadObserver scmHeadObserver, final TaskListener taskListener, final String projectOwner,
-                         final String projectName, final String branchName, final String commitHash, final int mrId) throws IOException {
+                         final String projectName, final String branchName, final String commitHash, final Integer mrId) throws IOException {
         if(isExcluded(branchName)) {
             return;
         }
@@ -384,8 +385,11 @@ public class GitLabSCMSource extends SCMSource {
                 return;
             }
 
+            taskListener.getLogger().println("DEBUG: projectOwner="+ projectOwner + "; projectName=" + projectName + "; branchName=" + branchName + "; mrId=" + mrId);
             SCMHeadWithProjectOwnerAndProjectName head = new SCMHeadWithProjectOwnerAndProjectName(projectOwner, projectName, branchName, mrId);
+            taskListener.getLogger().println("DEBUG: commitHash=" + commitHash);
             SCMRevision revision = new AbstractGitSCMSource.SCMRevisionImpl(head, commitHash);
+            taskListener.getLogger().println("DEBUG: revision=" +revision.toString());
             scmHeadObserver.observe(head, revision);
         }
     }
